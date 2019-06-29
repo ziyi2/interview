@@ -18,7 +18,7 @@ Github:  https://github.com/ziyi2
 
 ---
 
-- 熟悉C、JavaScript、Node.js
+- 熟悉嵌入式C、JavaScript、Node.js
 - 熟悉Vue.js框架
 
 ### 工作经历
