@@ -10,9 +10,19 @@
 
 ##  BFC
 
-BFC 全称为 块格式化上下文 (Block Formatting Context) 。
+### 什么是BFC
+BFC 全称为 块级格式化上下文 (Block Formatting Context) 。BFC是 W3C CSS 2.1 规范中的一个概念，它决定了元素如何对其内容进行定位，以及与其他元素的关系和相互作用，当涉及到可视化布局的时候，Block Formatting Context提供了一个环境，HTML元素在这个环境中按照一定规则进行布局。一个环境中的元素不会影响到其它环境中的布局。比如浮动元素会形成BFC，浮动元素内部子元素的主要受该浮动元素影响，两个浮动元素之间是互不影响的。这里有点类似一个BFC就是一个独立的行政单位的意思。
 
-触发BFC的条件：
+
+自我理解：
+
+也可以说BFC就是一个作用范围。可以把它理解成是一个独立的容器，并且这个容器的里box的布局，与这个容器外的毫不相干。
+
+这么多性质有点难以理解，但可以作如下推理来帮助理解：html的根元素就是html，而根元素会创建一个BFC，创建一个新的BFC时就相当于在这个元素内部创建一个新的html，子元素的定位就如同在一个新html页面中那样，而这个新旧html页面之间时不会相互影响的。
+
+
+
+### 触发BFC的条件
 
 - 根元素或其它包含它的元素
 - 浮动元素 (元素的 float 不是 none)
@@ -20,18 +30,40 @@ BFC 全称为 块格式化上下文 (Block Formatting Context) 。
 - 内联块 (元素具有 display: inline-block)
 - 表格单元格 (元素具有 display: table-cell，HTML表格单元格默认属性)
 - 表格标题 (元素具有 display: table-caption, HTML表格标题默认属性)
-- 具有overflow 且值不是 visible 的块元素，
+- 具有overflow 且值不是 visible 的块元素
+- 弹性盒（flex或inline-flex）
 - display: flow-root
 - column-span: all 应当总是会创建一个新的格式化上下文，即便具有 column-span: all 的元素并不被包裹在一个多列容器中。
 
 
+### BFC的约束规则
+
+- 内部的盒会在垂直方向一个接一个排列（可以看作BFC中有一个的常规流）；
+- 处于同一个BFC中的元素相互影响，可能会发生margin collapse；
+- 每个元素的margin box的左边，与容器块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此；
+- BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素，反之亦然；
+- 计算BFC的高度时，考虑BFC所包含的所有元素，连浮动元素也参与计算；
+- 浮动盒区域不叠加到BFC上；
+
+
+
+### BFC可以解决的问题
+
+- 垂直外边距重叠问题
+- 去除浮动
+- 自适用两列布局（float + overflow）
+
+### 参考链接
+
+https://juejin.im/post/5a4dbe026fb9a0452207ebe6
+https://juejin.im/post/59b73d5bf265da064618731d
 
 ###  盒模型
 
 包括**内容区域**、**内边距区域**、**边框区域**和**外边距区域**。
 
-`box-sizing: content-box`（W3C盒子模型）：元素的宽高表现为大小为`内容`的大小。
-`box-sizing: border-box`（IE盒子模型）：元素的宽高表表现为`内容 + 内边距 + 边框`的大小。背景会延伸到边框的外沿。
+`box-sizing: content-box`（W3C盒子模型）：元素的宽高大小表现为`内容`的大小。
+`box-sizing: border-box`（IE盒子模型）：元素的宽高表现为`内容 + 内边距 + 边框`的大小。背景会延伸到边框的外沿。
 
 
 IE5.x和IE6在怪异模式中使用非标准的盒子模型，这些浏览器的`width`属性不是**内容**的宽度，而是**内容**、**内边距**和**边框**的宽度的总和。
@@ -145,7 +177,133 @@ dom结构
 
 ## 跨域
 
+### 跨域行为
 
+- 同源策略限制、安全性考虑
+- 协议、IP和端口不一致都是跨域行为
+
+###  JSONP
+
+Web前端事先定义一个用于获取跨域响应数据的回调函数，并通过没有同源策略限制的script标签发起一个请求（将回调函数的名称放到这个请求的query参数里），然后服务端返回这个回调函数的执行，并将需要响应的数据放到回调函数的参数里，前端的script标签请求到这个执行的回调函数后会立马执行，于是就拿到了执行的响应数据。
+
+
+缺点： JSONP只能发起GET请求
+
+
+> 空的iframe+form实现POST请求。
+
+### 如何实现一个JSONP
+
+https://segmentfault.com/a/1190000015597029
+https://zhangguixu.github.io/2016/12/02/jsonp/
+https://www.cnblogs.com/iovec/p/5312464.html
+
+
+
+### JSONP安全性问题
+
+#### 安全性问题1（伪造请JSONP接口请求，CSRF攻击）
+
+ 前端构造一个恶意页面，请求JSONP接口，收集服务端的敏感信息。如果JSONP接口还涉及一些敏感操作或信息（比如登录、删除等操作），那就更不安全了。
+
+> 解决方法：验证JSONP的调用来源（Referer），服务端判断Referer是否是白名单。或者部署随机Token来防御。https://www.jianshu.com/p/14f569b13dcc
+
+#### 安全性问题2（XSS漏洞）
+
+``` javascript 
+不严谨的 content-type 导致的 XSS 漏洞
+
+想象一下 jsonp 就是你请求 http://youdomain.com?callback=douniwan, 然后返回 douniwan({ data })
+
+那假如请求 http://youdomain.com?callback=<script>alert(1)</script> 不就返回 <script>alert(1)</script>({ data }) 了吗，如果没有严格定义好 Content-Type（ Content-Type: application/json ），再加上没有过滤 callback 参数，直接当 html 解析了，就是一个赤裸裸的 XSS 了。
+```
+
+> 解决方法：严格定义 Content-Type: application/json，然后严格过滤 callback 后的参数并且限制长度（进行字符转义，例如<换成&lt，>换成&gt）等，这样返回的脚本内容会变成文本格式，脚本将不会执行。
+
+#### 安全问题3（服务器被黑，返回一串恶意执行的代码）
+
+可以将执行的代码转发到服务端进行JSONP内容是否合法，再返回结果。
+
+
+
+
+
+
+### CORS（跨域资款共享）
+
+#### 什么是CORS
+
+cors（跨域资源共享 Cross-origin resource sharing），它允许浏览器向跨域服务器发出XMLHttpRequest请求，从而克服跨域问题，它需要浏览器和服务器的同时支持。
+
+- 浏览器端会自动向请求头添加origin字段，表明当前请求来源。
+- 浏览器端需要设置响应头的Access-Control-Allow-Methods，Access-Control-Allow-Headers，Access-Control-Allow-Origin等字段，指定允许的方法，头部，源等信息。
+- 请求分为简单请求和非简单请求，非简单请求会先进行一次OPTION方法进行预检，看是否允许当前跨域请求。
+
+
+#### 简单请求和非简单请求
+
+- 简单请求
+
+1) 请求方法是以下三种方法之一：
+
+HEAD
+GET
+POST
+
+2）HTTP的头信息不超出以下几种字段：
+
+Accept
+Accept-Language
+Content-Language
+Last-Event-ID
+Content-Type：只限于三个值application/x-www-form-urlencoded、multipart/form-data、text/plain
+
+
+- 非简单请求
+
+非简单请求是那种对服务器有特殊要求的请求，比如请求方法是PUT或DELETE，或者Content-Type字段的类型是application/json。
+
+
+
+
+#### 后端设置响应头信息
+
+简单请求：
+
+Access-Control-Allow-Origin：该字段是必须的。它的值要么是请求时Origin字段的值，要么是一个*，表示接受任意域名的请求。
+
+Access-Control-Allow-Credentials：该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。
+
+Access-Control-Expose-Headers：该字段可选。CORS请求时，XMLHttpRequest对象的getResponseHeader()方法只能拿到6个基本字段：Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma。如果想拿到其他字段，就必须在Access-Control-Expose-Headers里面指定。
+
+非简单请求：
+
+非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。
+
+Access-Control-Request-Method：该字段是必须的，用来列出浏览器的CORS请求会用到哪些HTTP方法，上例是PUT。
+
+Access-Control-Request-Headers：该字段是一个逗号分隔的字符串，指定浏览器CORS请求会额外发送的头信息字段，上例是X-Custom-Header。
+
+
+如果浏览器否定了"预检"请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被XMLHttpRequest对象的onerror回调函数捕获。
+
+#### JSONP和CORS的对比
+
+- CORS与JSONP的使用目的相同，但是比JSONP更强大。
+- JSONP只支持GET请求，CORS支持所有类型的HTTP请求。JSONP的优势在于支持老式浏览器，以及可以向不支持CORS的网站请求数据。
+
+#### 参考链接
+
+https://github.com/HolyZheng/holyZheng-blog/issues/15
+http://www.ruanyifeng.com/blog/2016/04/cors.html
+
+### 其他
+
+- Nginx反向代理
+> 他的原理就是，服务器之间的通信是没有同源限制的，让本地服务器充当一个代理服务器的角色，帮助我们向目标服务器获取数据。因为我们在本地开发的时候，我们的代码运行在本地服务器之上，所以我们向本地服务器发送请求是不跨域的，我们就可以实现跨域了。
+
+- postMessage
+- document.domain
 
 
 
@@ -194,6 +352,9 @@ SPDY：HTTP - SPDY - SSL - TCP
 - 如果使用了一些UI库，采用按需加载
 - webpack开启gzip压缩
 - 如果首屏为登录页，可以做成多入口
+- 使用link标签的rel属性设置   prefetch（这段资源将会在未来某个导航或者功能要用到，但是本资源的下载顺序权重比较低。也就是说prefetch通常用于加速下一次导航）、preload（preload将会把资源得下载顺序权重提高，使得关键数据提前下载好，优化页面打开速度）。
+
+
 
 
 
@@ -211,6 +372,51 @@ https://www.zhihu.com/question/26621212
 
 ##作用域链
 
+了解作用域链之前我们要知道一下几个概念：
+
+- 函数的生命周期
+- 变量和函数的声明
+- Activetion Object（AO）、Variable Object（VO）
+
+函数的生命周期：
+
+创建：JS解析引擎进行预解析，会将函数声明提前，同时将该函数放到全局作用域中或当前函数的上一级函数的局部作用域中。
+
+执行：JS引擎会将当前函数的局部变量和内部函数进行声明提前，然后再执行业务代码，当函数执行完退出时，释放该函数的执行上下文，并注销该函数的局部变量。
+
+变量和函数的声明：
+
+如果变量名和函数名声明时相同，函数优先声明。
+
+
+Activetion Object（AO）、Variable Object（VO）：
+
+AO：Activetion Object（活动对象）
+VO：Variable Object（变量对象）
+
+
+VO对应的是函数创建阶段，JS解析引擎进行预解析时，所有的变量和函数的声明，统称为Variable Object。该变量与执行上下文相关，知道自己的数据存储在哪里，并且知道如何访问。VO是一个与执行上下文相关的特殊对象，它存储着在上下文中声明的以下内容：
+
+变量 (var, 变量声明);
+函数声明 (FunctionDeclaration, 缩写为FD);
+函数的形参
+
+
+AO对应的是函数执行阶段，当函数被调用执行时，会建立一个执行上下文，该执行上下文包含了函数所需的所有变量，该变量共同组成了一个新的对象就是Activetion Object。该对象包含了：
+
+函数的所有局部变量
+函数的所有命名参数
+函数的参数集合
+函数的this指向
+
+
+作用域链
+
+当代码在一个环境中创建时，会创建变量对象的一个作用域链（scope chain）来保证对执行环境有权访问的变量和函数。作用域第一个对象始终是当前执行代码所在环境的变量对象（VO）。
+
+如果是函数执行阶段，那么将其activation object（AO）作为作用域链第一个对象，第二个对象是上级函数的执行上下文AO，下一个对象依次类推。
+
+在《JavaScript深入之变量对象》中讲到，当查找变量的时候，会先从当前上下文的变量对象中查找，如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找，一直找到全局上下文的变量对象，也就是全局对象。这样由多个执行上下文的变量对象构成的链表就叫做作用域链。
 
 
 https://github.com/mqyqingfeng/Blog/issues/6
@@ -223,5 +429,160 @@ https://juejin.im/entry/57f5d492bf22ec006475238f
 
 
 ## VUE响应式原理
+
+
+
 ## Event Loop
+
+事件触发线程管理的任务队列是如何产生的呢？事实上这些任务就是从JS引擎线程本身产生的，主线程在运行时会产生执行栈，栈中的代码调用某些异步API时会在任务队列中添加事件，栈中的代码执行完毕后，就会读取任务队列中的事件，去执行事件对应的回调函数，如此循环往复，形成事件循环机制。
+
+JS中有两种任务类型：微任务（microtask）和宏任务（macrotask），在ES6中，microtask称为 jobs，macrotask称为 task。
+
+宏任务： script （主代码块）、setTimeout 、setInterval 、setImmediate 、I/O 、UI rendering
+微任务：process.nextTick（Nodejs） 、promise 、Object.observe 、MutationObserver
+
+
 node.js的Event Loop和浏览器的Event Loop有什么区别
+
+``` javascript
+┌───────────────────────┐
+┌─>│        timers         │<————— 执行 setTimeout()、setInterval() 的回调
+│  └──────────┬────────────┘
+|             |<-- 执行所有 Next Tick Queue 以及 MicroTask Queue 的回调
+│  ┌──────────┴────────────┐
+│  │     pending callbacks │<————— 执行由上一个 Tick 延迟下来的 I/O 回调（待完善，可忽略）
+│  └──────────┬────────────┘
+|             |<-- 执行所有 Next Tick Queue 以及 MicroTask Queue 的回调
+│  ┌──────────┴────────────┐
+│  │     idle, prepare     │<————— 内部调用（可忽略）
+│  └──────────┬────────────┘     
+|             |<-- 执行所有 Next Tick Queue 以及 MicroTask Queue 的回调
+|             |                   ┌───────────────┐
+│  ┌──────────┴────────────┐      │   incoming:   │ - (执行几乎所有的回调，除了 close callbacks 以及 timers 调度的回调和 setImmediate() 调度的回调，在恰当的时机将会阻塞在此阶段)
+│  │         poll          │<─────┤  connections, │ 
+│  └──────────┬────────────┘      │   data, etc.  │ 
+│             |                   |               | 
+|             |                   └───────────────┘
+|             |<-- 执行所有 Next Tick Queue 以及 MicroTask Queue 的回调
+|  ┌──────────┴────────────┐      
+│  │        check          │<————— setImmediate() 的回调将会在这个阶段执行
+│  └──────────┬────────────┘
+|             |<-- 执行所有 Next Tick Queue 以及 MicroTask Queue 的回调
+│  ┌──────────┴────────────┐
+└──┤    close callbacks    │<————— socket.on('close', ...)
+   └───────────────────────┘
+```
+
+Node.js的宏任务分了好几种，并且这几种放在了不同的task queue里，不同的task queue又有顺序的区别，而微任务又放在了每个task queue的末尾。
+
+setTimeout/setInterval 属于 timers 类型；
+setImmediate 属于 check 类型；
+socket 的 close 事件属于 close callbacks 类型；
+其他 MacroTask 都属于 poll 类型。
+process.nextTick 本质上属于 MicroTask，但是它先于所有其他 MicroTask 执行；
+所有 MicroTask 的执行时机，是不同类型 MacroTask 切换的时候。idle/prepare 仅供内部调用，我们可以忽略。
+pending callbacks 不太常见，我们也可以忽略。
+
+
+
+
+
+https://www.jianshu.com/p/deedcbf68880
+
+https://www.jianshu.com/p/3ffd610c5fe4
+
+
+
+## 回流和重绘
+
+
+- 浏览器使用流式布局模型 (Flow Based Layout)。
+- 浏览器会把HTML解析成DOM，把CSS解析成CSSOM，DOM和CSSOM合并就产生了Render Tree。
+- 有了RenderTree，我们就知道了所有节点的样式，然后计算他们在页面上的大小和位置，最后把节点绘制到页面上。
+- 由于浏览器使用流式布局，对Render Tree的计算通常只需要遍历一次就可以完成，但table及其内部元素除外，他们可能需要多次计算，通常要花3倍于同等元素的时间，这也是为什么要避免使用table布局的原因之一。
+
+
+浏览器渲染过程如下：
+
+
+- 解析HTML，生成DOM树，解析CSS，生成CSSOM树
+- 将DOM树和CSSOM树结合，生成渲染树(Render Tree)
+- Layout(回流):根据生成的渲染树，进行回流(Layout)，得到节点的几何信息（位置，大小）
+- Painting(重绘):根据渲染树以及回流得到的几何信息，得到节点的绝对像素
+- Display:将像素发送给GPU，展示在页面上。（这一步其实还有很多内容，比如会在GPU将多个合成层合并为同一个层，并展示在页面中。而css3硬件加速的原理则是新建合成层，这里我们不展开，之后有机会会写一篇博客）
+
+
+何时发生回流：
+
+- 添加或删除可见的DOM元素
+- 元素的位置发生变化
+- 元素的尺寸发生变化（包括外边距、内边框、边框大小、高度和宽度等）
+- 内容发生变化，比如文本变化或图片被另一个不同尺寸的图片所替代。
+- 页面一开始渲染的时候（这肯定避免不了）
+- 浏览器的窗口尺寸变化（因为回流是根据视口的大小来计算元素的位置和大小的）
+
+> 回流一定会触发重绘，而重绘不一定会回流，回流比重绘的代价要更高。
+
+何时发生重绘：
+
+当页面中元素样式的改变并不影响它在文档流中的位置时（例如：color、background-color、visibility等），浏览器会将新样式赋予给元素并重新绘制它，这个过程称为重绘。
+
+
+有时即使仅仅回流一个单一的元素，它的父元素以及任何跟随它的元素也会产生回流。
+现代浏览器会对频繁的回流或重绘操作进行优化：
+浏览器会维护一个队列，把所有引起回流和重绘的操作放入队列中，如果队列中的任务数量或者时间间隔达到一个阈值的，浏览器就会将队列清空，进行一次批处理，这样可以把多次回流和重绘变成一次。
+
+
+你访问以下属性或方法时，浏览器会立刻清空队列：
+
+
+clientWidth、clientHeight、clientTop、clientLeft
+
+
+offsetWidth、offsetHeight、offsetTop、offsetLeft
+
+
+scrollWidth、scrollHeight、scrollTop、scrollLeft
+
+
+width、height
+
+
+getComputedStyle()
+
+
+getBoundingClientRect()
+
+
+以上属性和方法都需要返回最新的布局信息，因此浏览器不得不清空队列，触发回流重绘来返回正确的值。因此，我们在修改样式的时候，**最好避免使用上面列出的属性，他们都会刷新渲染队列。**如果要使用它们，最好将值缓存起来。
+
+
+如何避免：
+
+
+CSS 
+
+
+- 避免使用table布局。
+- 尽可能在DOM树的最末端改变class。
+- 避免设置多层内联样式。
+- 将动画效果应用到position属性为absolute或fixed的元素上。
+- 避免使用CSS表达式（例如：calc()）。
+- css3硬件加速（GPU加速）
+
+JavaScript
+
+
+- 避免频繁操作样式，最好一次性重写style属性，或者将样式列表定义为class并一次性更改class属性。
+- 避免频繁操作DOM，创建一个documentFragment，在它上面应用所有DOM操作，最后再把它添加到文档中。
+- 也可以先为元素设置display: none，操作结束后再把它显示出来。因为在display属性为none的元素上进行的DOM操作不会引发回流和重绘。
+- 避免频繁读取会引发回流/重绘的属性，如果确实需要多次使用，就用一个变量缓存起来。
+- 对具有复杂动画的元素使用绝对定位，使它脱离文档流，否则会引起父元素及后续元素频繁回流。
+
+
+https://juejin.im/post/5c6cb7b4f265da2dae511a3d
+https://juejin.im/post/5a9923e9518825558251c96a
+
+
+
+
