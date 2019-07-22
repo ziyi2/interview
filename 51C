@@ -2,3 +2,5 @@
 ## ES5继承
 ## 绝对定位
 ## 消抖和节流
+## computed（实现原理、第一个为什么可以用第二个computed值）
+## 周期函数（created和beforeCreated中间做了什么）
