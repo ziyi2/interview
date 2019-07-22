@@ -39,6 +39,25 @@
 ## 文件上传的头信息application/x-www-form-urlencoded（文件上传的二进制是怎么处理的）
 ## Vue响应式原理
 ## Vue 2.x中的proxy做什么用
+## 性能优化、首屏加载优化
+
+# 三
+## z-index
+## 绝对定位
+## CSS3动画
+## 可视化
+## 你觉得你最擅长的是什么
+## flex两列布局
+## 事件委托有什么优点（起码两个以上）
+## ES6\ES7\ES8的特性
+## target/currentTarget/relateTarget
+## 业务形态
+## 事件流
+## 你觉得你有做过推动流程、简化流程或者改善流程的事件么，举例说明
+
+
+
+
 
 
 
