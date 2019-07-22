@@ -1,3 +1,5 @@
+# 一
+
 ## 手写Promise/Async
 
 ## Webpack实现原理
@@ -23,3 +25,23 @@
 ## 有哪些异步函数
 
 ## 讲讲MVVM，并说明与MVC有什么区别
+
+
+# 二
+
+## Event Loop
+## Webpack的loader和plugins的区别
+## HTTP状态码206
+## React高阶组件
+## React和Vue的区别
+## Service Worker缓存文件处理
+## 跨域
+## 文件上传的头信息application/x-www-form-urlencoded（文件上传的二进制是怎么处理的）
+## Vue响应式原理
+## Vue 2.x中的proxy做什么用
+
+
+
+
+
+
