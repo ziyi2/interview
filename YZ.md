@@ -1,3 +1,5 @@
+# 1
+
 ## CSS选择器以及优先级
 
 - !important
@@ -684,6 +686,13 @@ JavaScript
 
 https://juejin.im/post/5c6cb7b4f265da2dae511a3d
 https://juejin.im/post/5a9923e9518825558251c96a
+
+# 2
+
+1、1 1 2 3 5 8 计算第n个数的值
+2、1块、4块、5块，求总数N块的最小硬币数
+
+
 
 
 
